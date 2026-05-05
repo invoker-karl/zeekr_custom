@@ -11,16 +11,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  hassfest:
-    name: hassfest
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Run hassfest
-        uses: home-assistant/actions/hassfest@master
-
+  # NOTE: hassfest is intentionally not run.
+  # The official home-assistant/actions/hassfest action requires the
+  # standard `custom_components/<domain>/manifest.json` layout, but this
+  # repo uses HACS root-layout (`content_in_root: true` in hacs.json).
+  # HACS fully supports root-layout; hassfest does not.
   hacs:
     name: HACS validation
     runs-on: ubuntu-latest
