@@ -41,7 +41,7 @@ Cloud-polling, read-only — exposes vehicle telemetry (range, SOC, tire pressur
 ### Via HACS (recommended)
 
 1. HACS → Integrations → ⋮ → Custom repositories
-2. Add `https://github.com/aourwz/zeekr_custom` as type **Integration**
+2. Add `https://github.com/invoker-karl/zeekr_custom` as type **Integration**
 3. Install **Zeekr Custom Integration**
 4. Restart Home Assistant
 
