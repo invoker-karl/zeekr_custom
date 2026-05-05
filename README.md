@@ -1,111 +1,170 @@
 # Zeekr Custom Integration
 
-Home Assistant custom integration for Zeekr vehicles, with additional Zeekr 7X dashboard and visual assets.
+Home Assistant custom integration for Zeekr vehicles, with extended support for the **Zeekr 7X** (panoramic glass roof + electric sunshade).
 
-## What Is Here
+Cloud-polling, read-only — exposes vehicle telemetry (range, SOC, tire pressure/temperature, doors, charging state, …) and a 3D dashboard card with live state animation.
 
-- Home Assistant integration platforms: `sensor.py`, `binary_sensor.py`, `cover.py`, and `device_tracker.py`.
-- Config entry and coordinator wiring: `__init__.py`, `config_flow.py`, `coordinator.py`, and `base.py`.
-- Zeekr API implementation: `zeekr_api/`.
-- Chinese translations: `translations/zh-Hans.json`.
-- Dashboard examples and usage notes: `docs/`.
-- Zeekr 7X static assets and 3D page: `www/zeekr_7x/`.
-- Development helpers for probing and asset generation: `tools/`.
+> ⚠️ Read-only at the moment. No remote commands (lock/unlock, start/stop charging, climate). The integration only reads from the Zeekr cloud.
 
-## Important Runtime Files
+---
 
-The integration metadata is defined in `manifest.json`:
+## Features
 
-- Domain: `zeekr_custom`
-- Config flow: enabled
-- IoT class: `cloud_polling`
-- Python requirement: `pycryptodome==3.23.0`
+**Sensors**
+- State of charge (%), range (km), total odometer (km), average consumption (kWh/100km)
+- Cabin & exterior temperature, driver/passenger seat heating level
+- 4-tire pressure & temperature
+- Charging voltage / current / state / time-to-full
+- 12V battery voltage
+- Service-due remaining days & distance
+- Trip distance, sunroof/sunshade position
 
-The main setup path is:
+**Binary sensors**
+- Lock state
+- 4 doors (individual + aggregate)
+- 4 windows (individual + aggregate)
+- Sunroof, rear sunshade, trunk, hood, charging plug
+- Defrost, steering wheel heating, engine running
 
-1. `async_setup_entry` in `__init__.py` creates an API `Controller`.
-2. The controller authenticates and loads vehicles.
-3. A `ZeekrDataUpdateCoordinator` is created for each VIN.
-4. Home Assistant forwards setup to all platforms listed in `const.py`.
+**3D Lovelace card**
+- Live state animation: doors / hood / trunk open, mirrors fold on lock, charge port flap
+- Custom Three.js + GLB renderer, no external dependencies
+- Auto cache-busting (no need to bump URL versions when updating)
 
-## Dashboard Assets
+**Sample dashboard**
+- 3-column sections layout: KPI + status + SOC trend / 3D model + 4-tire health / cabin & maintenance + conditional charging info
 
-The `www/zeekr_7x/` folder contains generated PNG states, layered assets, app-style renders, and a local 3D model viewer.
+---
 
-Useful examples live in `docs/`:
+## Installation
 
-- `docs/ha_usage.md`
-- `docs/lovelace_zeekr_7x_example.yaml`
-- `docs/lovelace_zeekr_7x_layered_example.yaml`
-- `docs/lovelace_zeekr_7x_app_style_example.yaml`
-- `docs/lovelace_zeekr_7x_app_model_example.yaml`
-- `docs/lovelace_zeekr_7x_3d_iframe_example.yaml`
+### Via HACS (recommended)
 
-## Local Cleanup
+1. HACS → Integrations → ⋮ → Custom repositories
+2. Add `https://github.com/aourwz/zeekr_custom` as type **Integration**
+3. Install **Zeekr Custom Integration**
+4. Restart Home Assistant
 
-The project has previously accumulated browser profile folders and verification screenshots. These are ignored by `.gitignore` because they are generated local artifacts and can make future automated scans slow or unresponsive.
+### Manual
 
-Safe-to-remove generated paths include:
+Copy the integration files into `/config/custom_components/zeekr_custom/`:
 
-- `__pycache__/`
-- `tools/__pycache__/`
-- `zeekr_api/__pycache__/`
-- `tmp_chrome_profile*/`
-- `tmp_edge_profile*/`
-- root-level `tmp_*` files
+```
+__init__.py        base.py            binary_sensor.py
+config_flow.py     const.py           coordinator.py
+cover.py           manifest.json      sensor.py
+translations/      zeekr_api/
+```
 
-## Quick Verification
+Copy the dashboard assets into `/config/www/zeekr_7x/`:
 
-Run a syntax-only check from the project root:
+```
+model/             zeekr-3d-card.js
+```
 
+Restart Home Assistant.
+
+---
+
+## Configure the integration
+
+1. **Settings → Devices & services → Add integration → "Zeekr"**
+2. Enter your Zeekr account phone number, request SMS code, enter the code
+
+The integration creates one device per vehicle. Entities are named after the vehicle's VIN slug, e.g. `binary_sensor.<vin_slug>_lock`.
+
+---
+
+## Configure the dashboard
+
+### 1. Add the 3D card as a Lovelace resource
+
+**Settings → Dashboards → Resources → Add**:
+
+- URL: `/local/zeekr_7x/zeekr-3d-card.js`
+- Type: JavaScript module
+
+### 2. Find your VIN slug
+
+**Developer Tools → States** → search for `binary_sensor.` and look for one of the integration's entities, e.g. `binary_sensor.xiang_xxxxxx_xxxxxxxxxxxxxxxxx_lock`. The middle part (`xiang_xxxxxx_xxxxxxxxxxxxxxxxx`) is your VIN slug.
+
+### 3. Render the dashboard template with your VIN slug
+
+Open `docs/lovelace_zeekr_7x_dashboard_template.yaml` in any text editor and **find-and-replace** all occurrences of `<YOUR_VIN_SLUG>` (33 places) with your VIN slug. Save as a new file (e.g. `my_dashboard.yaml`).
+
+PowerShell one-liner:
 ```powershell
-C:\Users\karl321\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe -m compileall -q . -x "tmp_.*|__pycache__"
+(Get-Content docs/lovelace_zeekr_7x_dashboard_template.yaml) `
+  -replace '<YOUR_VIN_SLUG>', 'xiang_xxxxxx_xxxxxxxxxxxxxxxxx' `
+  | Set-Content my_dashboard.yaml
 ```
 
-Full Home Assistant validation should be done after placing this directory under `custom_components/zeekr_custom` in a Home Assistant environment.
+### 4. Paste into Home Assistant
 
-## Import Into Home Assistant
+**Settings → Dashboards → New dashboard → ⋮ → Take control → ⋮ → Raw configuration editor** → paste the rendered yaml → Save → Ctrl+Shift+R.
 
-Use this directory as the integration folder:
+---
 
-```text
-/config/custom_components/zeekr_custom/
+## Required HACS frontend cards
+
+The dashboard template uses these HACS frontend cards (all popular):
+
+- [`button-card`](https://github.com/custom-cards/button-card)
+- [`mini-graph-card`](https://github.com/kalkih/mini-graph-card)
+- [`card-mod`](https://github.com/thomasloven/lovelace-card-mod)
+
+---
+
+## Project layout
+
+```
+zeekr_custom/
+├── __init__.py            integration entry, device registry
+├── config_flow.py         SMS login / token refresh
+├── coordinator.py         data update coordinator (60s polling)
+├── const.py               PLATFORMS = sensor + binary_sensor
+├── manifest.json          integration metadata
+├── sensor.py / binary_sensor.py / cover.py    entity platforms
+├── base.py                ZeekrCarEntity base class
+├── translations/zh-Hans.json   Chinese strings
+├── zeekr_api/
+│   ├── controller.py      auth scheduling
+│   ├── client_old.py      legacy models  (HMAC-SHA1)
+│   ├── client_new.py      new models     (HMAC-SHA256 + AES-CBC X-VIN)
+│   ├── client_main.py     main account auth
+│   └── car.py             Car data model
+└── www/zeekr_7x/
+    ├── model/             Three.js + GLB 3D viewer
+    │   ├── index.html
+    │   ├── zeekr_7x.glb
+    │   └── vendor/        three.module.js + GLTFLoader + OrbitControls
+    └── zeekr-3d-card.js   Lovelace iframe wrapper card
 ```
 
-Copy the integration runtime files and folders there:
+---
 
-```text
-__init__.py
-base.py
-binary_sensor.py
-config_flow.py
-const.py
-coordinator.py
-cover.py
-device_tracker.py
-manifest.json
-number.py
-sensor.py
-translations/
-zeekr_api/
-```
+## Vehicle compatibility
 
-Copy dashboard assets separately to Home Assistant static files:
+The reverse-engineered API client supports both old and new Zeekr cloud platforms. Tested on:
 
-```text
-/config/www/zeekr_7x/
-```
+- ✅ Zeekr 7X (new platform, panoramic glass roof variant)
 
-The source folder for those assets is:
+Other models *should* work for read-only telemetry but may need entity/dashboard tweaks:
 
-```text
-www/zeekr_7x/
-```
+- 001, 009, 001 FR, X, 001 (FR), Mix, …
 
-After copying, restart Home Assistant, add the integration from Settings -> Devices & services, and configure either SMS login or token login. For the 3D card, add this dashboard resource as a JavaScript module:
+If you successfully use this integration with another model, please open an issue with details.
 
-```text
-/local/zeekr_7x/zeekr-3d-card.js
-```
+---
 
-Then use `docs/lovelace_zeekr_7x_3d_iframe_example.yaml` or one of the other Lovelace examples as a starting point.
+## Acknowledgments
+
+- Reverse-engineered from the Zeekr Life iOS app
+- Based on Three.js for 3D rendering, GLB model converted from app's local assets
+- Inspired by similar HACS integrations: tesla_custom, kia_uvo
+
+---
+
+## License
+
+See `LICENSE` (TBD).
