@@ -1,0 +1,28 @@
+# Python cache and local test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Browser profiles created during local visual verification
+tmp_chrome_profile*/
+tmp_edge_profile*/
+
+# One-off local verification outputs
+tmp_*.png
+tmp_*.jpg
+tmp_*.json
+tmp_*.cjs
+tmp_*.bin
+
+# Local editor and OS noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Personal dashboard with real VIN (kept locally for daily use).
+# Use docs/lovelace_zeekr_7x_dashboard_template.yaml as the public source.
+docs/lovelace_zeekr_7x_dashboard_full.yaml
+

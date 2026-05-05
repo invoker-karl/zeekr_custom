@@ -1,0 +1,238 @@
+###############################################################################
+# Zeekr 7X Dashboard — V16.0(3 sections,每列 1 个,内容堆叠平衡)
+#
+# V15.0 用 6 个独立 sections + dense_section_placement 让 HA 自动分配,
+# 但 dense_placement 在你的 HA 不识别,sections 顺序填充导致 Col 3 塞了 4 个
+# 短 sections,Col 1 只有 1 个 section,左右大量空白。
+#
+# V16.0:每列固定为 1 个大 section,内容用 grid_options 在 section 内垂直堆叠。
+# HA 严格 3 sections → 3 列,1:1:1。
+#
+# 布局(预估高度接近):
+#   Col 1 (~636px)         Col 2 (~696px)         Col 3 (~516px)
+#   ┌──────────┐         ┌──────────┐         ┌──────────┐
+#   │ 极氪 7X      │         │ 3D banner │         │ 座舱·维护│
+#   │ ─────────│         │           │         │  8 项+   │
+#   │ KPI 4 项    │         │           │         │  divider │
+#   │ ─────────│         │ ─────────│         │ ─────────│
+#   │ 状态 8 项 │         │ 4 胎健康  │         │ 充电(条件)│
+#   │ ─────────│         │ 8 项 +    │         │           │
+#   │ 24h SOC   │         │ divider   │         │           │
+#   └──────────┘         └──────────┘         └──────────┘
+#
+# 同时撤回 model/index.html 的 fov 自适应改动(回原 fov 30,3D 不再模糊)。
+#
+# 用法:
+#   1. HA → Settings → Dashboards → 极氪 7X
+#   2. Edit → ⋮ → Take control → ⋮ → Raw configuration editor
+#   3. Ctrl+A 全删 → Ctrl+V 粘贴 → Save → Ctrl+F5(同时刷 3D 缓存)
+###############################################################################
+
+views:
+  - title: 极氪 7X
+    path: zeekr-7x
+    icon: mdi:car-electric
+    type: sections
+    max_columns: 3
+    sections:
+
+      # ═════════════════════════════════════
+      # Col 1:总览 + KPI + 状态 + SOC
+      # ═════════════════════════════════════
+      - type: grid
+        cards:
+          - type: glance
+            show_state: true
+            show_name: true
+            columns: 4
+            entities:
+              - entity: sensor.<YOUR_VIN_SLUG>_battery
+                name: 电量
+                icon: mdi:battery
+              - entity: sensor.<YOUR_VIN_SLUG>_distance
+                name: 续航
+                icon: mdi:map-marker-distance
+              - entity: sensor.<YOUR_VIN_SLUG>_distance_2
+                name: 总里程
+                icon: mdi:road-variant
+              - entity: sensor.<YOUR_VIN_SLUG>_energy_per_distance
+                name: 电耗
+                icon: mdi:flash-outline
+            grid_options:
+              columns: 12
+              rows: 2
+
+          - type: entities
+            title: 状态
+            icon: mdi:lock-check
+            state_color: true
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.<YOUR_VIN_SLUG>_lock
+                name: 车锁
+                icon: mdi:lock
+              - entity: binary_sensor.<YOUR_VIN_SLUG>_door
+                name: 车门
+                icon: mdi:car-door
+              - entity: binary_sensor.<YOUR_VIN_SLUG>_window
+                name: 车窗
+                icon: mdi:window-closed-variant
+              - entity: binary_sensor.<YOUR_VIN_SLUG>_opening_3
+                name: 遮阳帘
+                icon: mdi:blinds
+              - entity: binary_sensor.<YOUR_VIN_SLUG>_opening
+                name: 后备箱
+                icon: mdi:car-back
+              - entity: binary_sensor.<YOUR_VIN_SLUG>_opening_2
+                name: 引擎盖
+                icon: mdi:car-cog
+              - entity: binary_sensor.<YOUR_VIN_SLUG>_plug
+                name: 充电枪
+                icon: mdi:ev-plug-type2
+            grid_options:
+              columns: 12
+              rows: auto
+
+          - type: custom:mini-graph-card
+            name: 24h SOC 趋势
+            entities:
+              - entity: sensor.<YOUR_VIN_SLUG>_battery
+                name: SOC
+            hours_to_show: 24
+            points_per_hour: 2
+            line_color: '#10b981'
+            line_width: 3
+            font_size: 65
+            height: 160
+            animate: true
+            show:
+              extrema: true
+              average: true
+              fill: fade
+              labels: false
+              points: false
+              name: true
+              icon: true
+              legend: false
+              state: true
+            color_thresholds:
+              - value: 20
+                color: '#ef4444'
+              - value: 40
+                color: '#f59e0b'
+              - value: 60
+                color: '#10b981'
+            card_mod:
+              style: |
+                ha-card { border-radius: 18px; }
+            grid_options:
+              columns: 12
+              rows: 5
+
+      # ═════════════════════════════════════
+      # Col 2:3D + 4 胎健康
+      # ═════════════════════════════════════
+      - type: grid
+        cards:
+          - type: custom:zeekr-3d-card
+            entity: sensor.<YOUR_VIN_SLUG>
+            url: /local/zeekr_7x/model/index.html?v=v24-glasstop-mat
+            height: 380px
+            grid_options:
+              columns: 12
+              rows: 6
+
+          - type: entities
+            title: 4 胎健康
+            icon: mdi:tire
+            show_header_toggle: false
+            entities:
+              - entity: sensor.<YOUR_VIN_SLUG>_pressure
+                name: 前左胎
+                icon: mdi:tire
+              - entity: sensor.<YOUR_VIN_SLUG>_pressure_2
+                name: 前右胎
+                icon: mdi:tire
+              - entity: sensor.<YOUR_VIN_SLUG>_pressure_3
+                name: 后左胎
+                icon: mdi:tire
+              - entity: sensor.<YOUR_VIN_SLUG>_pressure_4
+                name: 后右胎
+                icon: mdi:tire
+              - type: divider
+              - entity: sensor.<YOUR_VIN_SLUG>_temperature_2
+                name: 前左温
+                icon: mdi:thermometer
+              - entity: sensor.<YOUR_VIN_SLUG>_temperature_3
+                name: 前右温
+                icon: mdi:thermometer
+              - entity: sensor.<YOUR_VIN_SLUG>_temperature_4
+                name: 后左温
+                icon: mdi:thermometer
+              - entity: sensor.<YOUR_VIN_SLUG>_temperature_5
+                name: 后右温
+                icon: mdi:thermometer
+            grid_options:
+              columns: 12
+              rows: auto
+
+      # ═════════════════════════════════════
+      # Col 3:座舱·维护 + 充电(条件)
+      # ═════════════════════════════════════
+      - type: grid
+        cards:
+          - type: entities
+            title: 座舱 · 维护
+            icon: mdi:home-thermometer
+            show_header_toggle: false
+            entities:
+              - entity: sensor.<YOUR_VIN_SLUG>_temperature
+                name: 车内温度
+                icon: mdi:home-thermometer
+              - entity: sensor.<YOUR_VIN_SLUG>_temperature_6
+                name: 车外温度
+                icon: mdi:thermometer
+              - entity: sensor.<YOUR_VIN_SLUG>_8
+                name: 主驾加热
+                icon: mdi:car-seat-heater
+              - entity: sensor.<YOUR_VIN_SLUG>_9
+                name: 副驾加热
+                icon: mdi:car-seat-heater
+              - type: divider
+              - entity: sensor.<YOUR_VIN_SLUG>_5
+                name: 保养剩余
+                icon: mdi:calendar-check
+              - entity: sensor.<YOUR_VIN_SLUG>_distance_3
+                name: 保养里程
+                icon: mdi:wrench-clock
+              - entity: sensor.<YOUR_VIN_SLUG>_voltage_2
+                name: 12V 电瓶
+                icon: mdi:car-battery
+            grid_options:
+              columns: 12
+              rows: auto
+
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.<YOUR_VIN_SLUG>_plug
+                state: 'on'
+            card:
+              type: entities
+              title: ⚡ 充电中
+              show_header_toggle: false
+              entities:
+                - entity: sensor.<YOUR_VIN_SLUG>_voltage
+                  name: 充电电压
+                  icon: mdi:lightning-bolt
+                - entity: sensor.<YOUR_VIN_SLUG>_current
+                  name: 充电电流
+                  icon: mdi:current-ac
+                - entity: sensor.<YOUR_VIN_SLUG>_2
+                  name: 充电状态
+                  icon: mdi:battery-charging-medium
+                - entity: sensor.<YOUR_VIN_SLUG>_duration
+                  name: 充满还需
+                  icon: mdi:timer-sand
+            grid_options:
+              columns: 12
+              rows: auto

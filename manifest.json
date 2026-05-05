@@ -1,0 +1,12 @@
+{
+  "domain": "zeekr_custom",
+  "name": "Zeekr Custom Integration",
+  "codeowners": ["@aourwz"],
+  "config_flow": true,
+  "documentation": "https://github.com/aourwz/zeekr_custom",
+  "issue_tracker": "https://github.com/aourwz/zeekr_custom/issues",
+  "iot_class": "cloud_polling",
+  "loggers": ["custom_components.zeekr_custom"],
+  "requirements": ["pycryptodome==3.23.0"],
+  "version": "0.0.1"
+}

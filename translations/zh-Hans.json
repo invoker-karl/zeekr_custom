@@ -1,0 +1,336 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "账户已经存在",
+      "reauth_successful": "重新认证成功"
+    },
+    "step": {
+      "user": {
+        "title": "认证类型",
+        "data": {
+          "auth_type": "选择认证类型"
+        }
+      },
+      "mobile": {
+        "title": "输入手机号",
+        "data": {
+          "mobile": "手机号"
+        }
+      },
+      "code": {
+        "title": "输入短信验证码",
+        "data": {
+          "code": "短信验证码"
+        }
+      },
+      "token": {
+        "title": "输入access_token",
+        "data": {
+          "access_token": "access_token"
+        }
+      },
+      "choose_vehicle": {
+        "title": "选择车辆",
+        "data": {
+          "vehicle": "选择车辆"
+        }
+      },
+      "reauth_confirm": {
+        "title": "重新认证 Zeekr",
+        "description": "{mobile} 的 token 已失效或服务端拒绝。点击提交后将重新走登录流程。"
+      }
+    },
+    "error": {
+      "sms_too_soon": "发送间隔不足 60 秒，请稍后再试"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "设置项",
+        "data": {
+          "vehicle": "选择车辆",
+          "scan_interval": "更新间隔（秒）"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "car_door": {
+        "name": "车门",
+        "state_attributes": {
+          "Driver Front Percent": {
+            "name": "左前车门开合百分比"
+          },
+          "Driver Rear Percent": {
+            "name": "左后车门开合百分比"
+          },
+          "Passenger Front Percent": {
+            "name": "右前车门开合百分比"
+          },
+          "Passenger Rear Percent": {
+            "name": "右后车门开合百分比"
+          },
+          "Driver Front": {
+            "name": "左前车门状态",
+            "state": {
+              "Closed": "关闭",
+              "Open": "打开"
+            }
+          },
+          "Driver Rear": {
+            "name": "左后车门状态",
+            "state": {
+              "Closed": "关闭",
+              "Open": "打开"
+            }
+          },
+          "Passenger Front": {
+            "name": "右前车门状态",
+            "state": {
+              "Closed": "关闭",
+              "Open": "打开"
+            }
+          },
+          "Passenger Rear": {
+            "name": "右后车门状态",
+            "state": {
+              "Closed": "关闭",
+              "Open": "打开"
+            }
+          }
+        }
+      },
+      "car_window": {
+        "name": "车窗",
+        "state_attributes": {
+          "Driver Front Percent": {
+            "name": "左前车窗开合百分比"
+          },
+          "Driver Rear Percent": {
+            "name": "左后车窗开合百分比"
+          },
+          "Passenger Front Percent": {
+            "name": "右前车窗开合百分比"
+          },
+          "Passenger Rear Percent": {
+            "name": "右后车窗开合百分比"
+          },
+          "Driver Front": {
+            "name": "左前车窗状态",
+            "state": {
+              "Closed": "关闭",
+              "Open": "打开"
+            }
+          },
+          "Driver Rear": {
+            "name": "左后车窗状态",
+            "state": {
+              "Closed": "关闭",
+              "Open": "打开"
+            }
+          },
+          "Passenger Front": {
+            "name": "右前车窗状态",
+            "state": {
+              "Closed": "关闭",
+              "Open": "打开"
+            }
+          },
+          "Passenger Rear": {
+            "name": "右后车窗状态",
+            "state": {
+              "Closed": "关闭",
+              "Open": "打开"
+            }
+          }
+        }
+      },
+      "door_driver_front": {
+        "name": "左前车门"
+      },
+      "door_driver_rear": {
+        "name": "左后车门"
+      },
+      "door_passenger_front": {
+        "name": "右前车门"
+      },
+      "door_passenger_rear": {
+        "name": "右后车门"
+      },
+      "window_driver_front": {
+        "name": "左前车窗"
+      },
+      "window_driver_rear": {
+        "name": "左后车窗"
+      },
+      "window_passenger_front": {
+        "name": "右前车窗"
+      },
+      "window_passenger_rear": {
+        "name": "右后车窗"
+      },
+      "engine_running": {
+        "name": "引擎运行状态"
+      },
+      "unlocked": {
+        "name": "未锁状态"
+      },
+      "plugged_in": {
+        "name": "充电枪连接"
+      },
+      "trunk": {
+        "name": "后备箱"
+      },
+      "engine_hood": {
+        "name": "机舱盖"
+      },
+      "sunroof": {
+        "name": "天窗"
+      },
+      "rear_sunshade": {
+        "name": "后排遮阳帘"
+      },
+      "defrost": {
+        "name": "除霜"
+      },
+      "steering_wheel_heating": {
+        "name": "方向盘加热"
+      }
+    },
+    "sensor": {
+      "model": {
+        "name": "车型"
+      },
+      "display_state": {
+        "name": "展示状态",
+        "state": {
+          "charging": "充电中",
+          "plugged_in": "已插枪",
+          "driving": "行驶中",
+          "trunk_open": "后备箱打开",
+          "engine_hood_open": "机舱盖打开",
+          "sunroof_open": "天窗打开",
+          "rear_sunshade_open": "遮阳帘打开",
+          "door_open": "车门打开",
+          "window_open": "车窗打开",
+          "unlocked": "未锁车",
+          "parked": "停放"
+        }
+      },
+      "temperature_inside": {
+        "name": "车内温度"
+      },
+      "temperature_outside": {
+        "name": "车外温度"
+      },
+      "tpms_pressure_fl": {
+        "name": "前左轮胎压力"
+      },
+      "tpms_pressure_fr": {
+        "name": "前右轮胎压力"
+      },
+      "tpms_pressure_rl": {
+        "name": "后左轮胎压力"
+      },
+      "tpms_pressure_rr": {
+        "name": "后右轮胎压力"
+      },
+      "tyre_temp_fl": {
+        "name": "前左轮胎温度"
+      },
+      "tyre_temp_fr": {
+        "name": "前右轮胎温度"
+      },
+      "tyre_temp_rl": {
+        "name": "后左轮胎温度"
+      },
+      "tyre_temp_rr": {
+        "name": "后右轮胎温度"
+      },
+      "battery_level": {
+        "name": "电池电量"
+      },
+      "charging_status": {
+        "name": "充电状态",
+        "state": {
+          "NOT_CHARGING": "未充电",
+          "DEFAULT": "默认",
+          "CHARGING": "充电中",
+          "ERROR": "错误",
+          "COMPLETE": "完成",
+          "FULLY_CHARGED": "已充满",
+          "FINISHED_FULLY_CHARGED": "已充满并结束",
+          "FINISHED_NOT_FULL": "未充满并结束",
+          "INVALID": "无效",
+          "PLUGGED_IN": "已插枪",
+          "WAITING_FOR_CHARGING": "等待充电",
+          "TARGET_REACHED": "已达目标电量",
+          "UNKNOWN": "未知",
+          "DC_CHARGING": "直流充电中"
+        }
+      },
+      "speed": {
+        "name": "车速"
+      },
+      "direction": {
+        "name": "方向"
+      },
+      "altitude": {
+        "name": "海拔"
+      },
+      "distance_to_empty_battery": {
+        "name": "纯电续航"
+      },
+      "time_to_fully_charged": {
+        "name": "充满剩余时间"
+      },
+      "charge_voltage": {
+        "name": "充电电压"
+      },
+      "charge_current": {
+        "name": "充电电流"
+      },
+      "average_power_consumption": {
+        "name": "平均电耗"
+      },
+      "odometer": {
+        "name": "总里程"
+      },
+      "days_to_service": {
+        "name": "保养剩余天数"
+      },
+      "distance_to_service": {
+        "name": "保养剩余里程"
+      },
+      "low_voltage_battery_voltage": {
+        "name": "低压电瓶电压"
+      },
+      "average_speed": {
+        "name": "平均速度"
+      },
+      "trip_meter_2": {
+        "name": "小计里程"
+      },
+      "sunroof_position": {
+        "name": "天窗位置"
+      },
+      "rear_sunshade_position": {
+        "name": "后排遮阳帘位置"
+      },
+      "driver_seat_heating": {
+        "name": "主驾座椅加热档位"
+      },
+      "passenger_seat_heating": {
+        "name": "副驾座椅加热档位"
+      },
+      "driver_seat_ventilation": {
+        "name": "主驾座椅通风档位"
+      },
+      "passenger_seat_ventilation": {
+        "name": "副驾座椅通风档位"
+      }
+    }
+  }
+}
