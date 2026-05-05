@@ -115,7 +115,7 @@ class ZeekrCarTemp(ZeekrCarEntity, SensorEntity):
     def native_value(self):
         """Return car temperature."""
         temp = self._car.interior_temp if self.inside else self._car.exterior_temp
-        if temp:
+        if temp is not None:
             return temp
         return None
 
@@ -187,7 +187,7 @@ class ZeekrCarTyreTemp(ZeekrCarEntity, SensorEntity):
     def native_value(self) -> float | None:
         """Return tyre temperature."""
         value = getattr(self._car, self.translation_key)
-        if value:
+        if value is not None:
             return value
         return None
 
@@ -221,7 +221,7 @@ class ZeekrCarTpmsPressureSensor(ZeekrCarEntity, SensorEntity):
     def native_value(self) -> float | None:
         """Return TPMS Pressure."""
         value = getattr(self._car, self.translation_key)
-        if value:
+        if value is not None:
             return value
         return None
 

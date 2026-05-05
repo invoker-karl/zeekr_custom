@@ -40,6 +40,7 @@ class ZeekrConfigFlow(ConfigFlow, domain=DOMAIN):
         self.reauth = False
         self.controller: Controller | None = None
         self.mobile = None
+        self._reauth_entry_id: str | None = None
 
     async def async_step_user(
         self,
@@ -229,6 +230,10 @@ class ZeekrConfigFlow(ConfigFlow, domain=DOMAIN):
         """
         self.mobile = entry_data.get(CONF_MOBILE)
         self.reauth = True
+        # Bind to the original entry by id so reauth cannot accidentally
+        # update or duplicate a different entry that happens to share the
+        # same mobile number.
+        self._reauth_entry_id = self.context.get("entry_id")
         return await self.async_step_reauth_confirm()
 
     async def async_step_reauth_confirm(
@@ -246,7 +251,16 @@ class ZeekrConfigFlow(ConfigFlow, domain=DOMAIN):
 
     @callback
     def _async_entry_for_mobile(self, mobile):
-        """Find an existing entry for a mobile."""
+        """Find an existing entry for a mobile.
+
+        During reauth, prefer the entry_id captured in async_step_reauth so
+        we never accidentally redirect reauth to a different entry that
+        happens to share the same mobile.
+        """
+        if self.reauth and self._reauth_entry_id:
+            entry = self.hass.config_entries.async_get_entry(self._reauth_entry_id)
+            if entry is not None:
+                return entry
         if not mobile:
             return None
         for entry in self._async_current_entries():

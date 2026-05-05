@@ -167,4 +167,4 @@ If you successfully use this integration with another model, please open an issu
 
 ## License
 
-See `LICENSE` (TBD).
+MIT — see [LICENSE](LICENSE).
